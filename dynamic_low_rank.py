@@ -1,20 +1,36 @@
 import numpy as np
 
+def A(t,n,m):
+    x = np.linspace(0,1,n)
+    y = np.linspace(0,1,m)
+    X,Y = np.meshgrid(x,y)
+    A = np.exp(-t)*np.sin(np.pi*X)*np.sin(2*np.pi*Y) #removed 5pi^2
+    return A
+
+def laplace(m,n):
+    ones = np.ones(m*n)
+    k = np.min([1/n,1/m]) # dobbelsjekk
+    L =  1/k**2*(2*np.diag(ones) - np.diag(ones[:-1],-1) - np.diag(ones[:-1],1)) 
+    return L
+
+
+def A_dot(t,n,m):
+    A_matrix = A(t,n,m)
+    L = laplace(n,m)
+    A_dot = L@A_matrix + A_matrix@L
+    return A_dot
+
+
 #Naive method
 def cay_operator(B):
     I = np.eye(B.shape[0])
     inv = np.linalg.inv((I-0.5*B)) 
     return inv@(I+0.5*B)
 
-#QR method
+#QR method not finished
 def cay_operator_QR(F,U):
-    C = np.array(F,-U)
-    print(C)
-
-A = np.array([[1,2,3],[4,5,6],[7,8,9]])
-B = np.array([[1,2,3],[4,5,6],[7,8,9]])
-
-cay_operator_QR(A,B)
+    C = np.block([F,-U])
+    D = np.block([U,F])
 
 def FU(U,A_dot,V,S):
     I_mm = np.eye(U.shape[0])
@@ -25,7 +41,8 @@ def FV(V,A_dot,U,S):
     return (I_mm-V@V.T)@A_dot.T@U@np.linalg.inv(S).T
 
 def second_order_method(h,U,A_dot,V,S,tol):
-    I_mm = np.eye(U.shape[0])
+    m,n = U.shape[0],V.shape[0]
+    I_mm = np.eye(m)
     K1_S = h*U.T@A_dot@V
     S05 = S + 0.5*K1_S
 
@@ -49,10 +66,5 @@ def second_order_method(h,U,A_dot,V,S,tol):
     K2_V = h*(FV05@V05.T-V05@FV05.T)
     V1 = cay_operator(K2_V)@V
 
-    S1_est = S05 + 0.5*K1_S
-    U1_est = cay_operator(K1_U)@U
-    V1_est = cay_operator(K1_V)@V
-
-    sigma = np.linalg.norm(U1@S1@V1.T-U1_est@S1_est@V1_est.T,'fro')
-
-    h = h*(sigma/tol)**(-1/3)
+    return K1_U,K1_V,S05,K1_S,U1,S1,V1
+    
