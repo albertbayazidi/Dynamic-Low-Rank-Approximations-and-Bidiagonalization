@@ -1,5 +1,5 @@
 import numpy as np
-import copy.dynamic_low_rank as dlr 
+import dynamic_low_rank as dlr 
 
 def step_control(sigma,tol,h,t):
     if sigma > tol:
