@@ -106,3 +106,33 @@ def compareApproximations(A):
     plt.plot([i for i in range(1,n+1)],bidiag_norm, label = "Lanczos")
     plt.legend()
     plt.show()
+
+def orthogonalityError(A,b):
+    """
+    calculates the matrices resulting from Lanczos bidiagonalization, 
+    with and without reorthogonalization. Then calculates orthogonality error,
+    measured as the mean dot product between vectors in P and Q respectively.
+    input: 
+    A - matrix that is to be approximated by Lanczos 
+    b - rhs of original linear system of equations
+    """
+    m,n = np.shape(A)
+    P,Q = lanczosBiDiag(A,n,b, orthogonalize = False)[:-1]
+    P_ortho,Q_ortho = lanczosBiDiag(A,n,b, orthogonalize = True)[:-1]
+    
+    # Find mean sum of unique dot-products between columns in P and Q, e.g.
+    # err_P = sqrt(sum(v_i dot v_j)) for all i={1,..,n} and j = {1,..,n} where j != i
+    # this is equivalent to calculating P.T @ P, extracting the upper triangular matrix
+    # (without the diagonal), and taking the Frobenius norm times the dimension of P.
+    
+    err_P = 1/n * np.linalg.norm(np.triu(np.dot(P.T,P),1))
+    err_Q = 1/n * np.linalg.norm(np.triu(np.dot(Q.T,Q),1))
+    
+    err_P_ortho =  1/n * np.linalg.norm(np.triu(np.dot(P_ortho.T,P_ortho),1))
+    err_Q_ortho = 1/n *  np.linalg.norm(np.triu(np.dot(Q_ortho.T,Q_ortho),1))
+    
+    print("Without re-orthogonalization: ")
+    print("Mean error for P: ", "{:.3e}".format(err_P), "  Mean error for Q: ", "{:.3e}".format(err_Q))
+    print("With re-orthogonalization: ")
+    print("Mean error for P: ", "{:.3e}".format(err_P_ortho)," Mean error for Q: ", "{:.3e}".format(err_Q_ortho))
+    
