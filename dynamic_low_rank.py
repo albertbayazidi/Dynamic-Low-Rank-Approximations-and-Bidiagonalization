@@ -1,6 +1,6 @@
 import numpy as np
 
-def A(t,n,m):
+def A_fun(t,n,m):
     x = np.linspace(0,1,n)
     y = np.linspace(0,1,m)
     X,Y = np.meshgrid(x,y)
@@ -14,10 +14,10 @@ def laplace(m,n):
     return L
 
 
-def A_dot(t,n,m):
-    A_matrix = A(t,n,m)
+def A_dot_fun(t,n,m):
+    A = A_fun(t,n,m)
     L = laplace(n,m)
-    A_dot = L@A_matrix + A_matrix@L
+    A_dot = L@A + A@L
     return A_dot
 
 
@@ -26,6 +26,9 @@ def cay_operator(B):
     I = np.eye(B.shape[0])
     inv = np.linalg.inv((I-0.5*B)) 
     return inv@(I+0.5*B)
+
+#First method
+#https://www.sciencedirect.com/science/article/pii/S0898122101002784
 
 #QR method not finished
 def cay_operator_QR(F,U):
@@ -40,7 +43,8 @@ def FV(V,A_dot,U,S):
     I_mm = np.eye(U.shape[0])
     return (I_mm-V@V.T)@A_dot.T@U@np.linalg.inv(S).T
 
-def second_order_method(h,U,A_dot,V,S,tol):
+def second_order_method(h,t,U,V,S):
+    A_dot = A_dot_fun(t,n,m)
     m,n = U.shape[0],V.shape[0]
     I_mm = np.eye(m)
     K1_S = h*U.T@A_dot@V
@@ -55,14 +59,15 @@ def second_order_method(h,U,A_dot,V,S,tol):
     V05 = cay_operator(0.5*K1_V)@V
 
     # her skal A_dot endres til A_dot05
-    K2_S = h*U05.T@A_dot@V
+    A_dot05 = A_dot_fun(t+h/2,n,m)
+    K2_S = h*U05.T@A_dot05@V
     S1 = S + 0.5*K2_S
 
-    FU05 = FU(U05,A_dot,V05,S05) 
+    FU05 = FU(U05,A_dot05,V05,S05) 
     K2_U = h*(FU05@U05.T-U05@FU05.T)
     U1 = cay_operator(K2_U)@U
 
-    FV05 = FV(V05,A_dot,U05,S05)
+    FV05 = FV(V05,A_dot05,U05,S05)
     K2_V = h*(FV05@V05.T-V05@FV05.T)
     V1 = cay_operator(K2_V)@V
 

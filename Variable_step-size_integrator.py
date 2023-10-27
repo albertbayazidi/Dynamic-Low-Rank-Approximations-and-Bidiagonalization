@@ -26,8 +26,7 @@ def variable_solver(t0,tf,U,S,V,A_dot,tol,h0):
     h = h0
     j = 0
     while t < tf:
-        #send A med riktig tidssteg
-        K1_U,K1_V,S05,K1_S,U1,S1,V1 = dlr.second_order_method(h,U,A_dot,V,S,tol)
+        K1_U,K1_V,S05,K1_S,U1,S1,V1 = dlr.second_order_method(h,t,U,V,S)
         
         S1_est = S05 + 0.5*K1_S
         U1_est = dlr.cay_operator(K1_U)@U
@@ -38,8 +37,7 @@ def variable_solver(t0,tf,U,S,V,A_dot,tol,h0):
         t_new,h_new = step_control(sigma,tol,h,t)
 
         if t_new < t and count <= 3:
-            #send A med riktig tidssteg
-            K1_U,K1_V,S05,K1_S,U1,S1,V1 = dlr.second_order_method(h_new,U,A_dot,V,S,tol)
+            K1_U,K1_V,S05,K1_S,U1,S1,V1 = dlr.second_order_method(h_new,t_new,U,V,S)
         
             t = t_new
             h = h_new
