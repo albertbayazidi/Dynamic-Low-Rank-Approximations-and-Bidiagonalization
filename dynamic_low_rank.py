@@ -17,8 +17,8 @@ def laplace(m,n):
 def A_dot_fun(t,n,m):
     A = A_fun(t,n,m)
     L = laplace(n,m)
-    A_dot = L@A + A@L
-    return A_dot
+    A_dot = L@A.ravel() + A.ravel()@L
+    return A_dot.reshape(n,m)
 
 
 #Naive method
