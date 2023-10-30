@@ -19,8 +19,19 @@ def step_control(sigma,tol,h,t):
         h_new = R*h
     return t_new,h_new
 
-def variable_solver(t0,tf,U,S,V,A_dot,tol,h0):
+
+def construct_U_S_V_0(A):
+    U,S,V = np.linalg.svd(A) # can use hermitain = True if symetric
+
+    Sigma = np.zeros(A.shape)
+    for i,s in enumerate(S):
+        Sigma[i,i] = s
     
+    return U,Sigma,V.T  #dobbelt sjekk
+
+
+def variable_solver(t0,tf,A,tol,h0):
+    U, S, V = construct_U_S_V_0(A)
     count = 0
     t = t0
     h = h0
@@ -50,5 +61,5 @@ def variable_solver(t0,tf,U,S,V,A_dot,tol,h0):
     if t > tf:
         t = t-h_old
         h = tf-t
-        _,_,_,_,U1,S1,V1 = dlr.second_order_method(h,U,A_dot,V,S,tol)
+        _,_,_,_,U1,S1,V1 = dlr.second_order_method(h,U,V,S,tol)
         j += 1

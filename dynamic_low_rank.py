@@ -46,7 +46,6 @@ def FV(V,A_dot,U,S):
 def second_order_method(h,t,U,V,S):
     A_dot = A_dot_fun(t,n,m)
     m,n = U.shape[0],V.shape[0]
-    I_mm = np.eye(m)
     K1_S = h*U.T@A_dot@V
     S05 = S + 0.5*K1_S
 
@@ -58,7 +57,6 @@ def second_order_method(h,t,U,V,S):
     K1_V = h*(FVj@V.T-V@FVj.T)
     V05 = cay_operator(0.5*K1_V)@V
 
-    # her skal A_dot endres til A_dot05
     A_dot05 = A_dot_fun(t+h/2,n,m)
     K2_S = h*U05.T@A_dot05@V
     S1 = S + 0.5*K2_S
