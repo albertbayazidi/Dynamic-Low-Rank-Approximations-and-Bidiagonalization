@@ -8,7 +8,7 @@ def A_fun(t,n,m):
     return A
 
 def laplace(m,n):
-    ones = np.ones(m*n)
+    ones = np.ones((m)*(n))
     k = np.min([1/n,1/m]) # dobbelsjekk
     L =  1/k**2*(2*np.diag(ones) - np.diag(ones[:-1],-1) - np.diag(ones[:-1],1)) 
     return L
@@ -27,13 +27,28 @@ def cay_operator(B):
     inv = np.linalg.inv((I-0.5*B)) 
     return inv@(I+0.5*B)
 
-#First method
-#https://www.sciencedirect.com/science/article/pii/S0898122101002784
+def cay_factorized(F,mat):
+    #First method
+    #https://www.sciencedirect.com/science/article/pii/S0898122101002784
+    #efficnet invese method of off-diagonal block matrix
+
+    C = np.block([F,-mat])
+    D = np.block([mat,F])
+
+    I = np.eye(F.shape[0])
+    O = np.zeros(F.shape)
+
+    DTC = np.block([[O,I]
+                    ,[F.T@F,O]])
+    
+    DTC_inv = np.linalg.inv(I-0.5*DTC) # could be done more efficiently i think
+    I = np.eye(DTC_inv.shape[0])
+
+    return I + C@DTC_inv@D.T
 
 #QR method not finished
 def cay_operator_QR(F,U):
-    C = np.block([F,-U])
-    D = np.block([U,F])
+    pass
 
 def FU(U,A_dot,V,S):
     I_mm = np.eye(U.shape[0])
@@ -43,9 +58,10 @@ def FV(V,A_dot,U,S):
     I_mm = np.eye(U.shape[0])
     return (I_mm-V@V.T)@A_dot.T@U@np.linalg.inv(S).T
 
+#most change cay operator to cay factorized
 def second_order_method(h,t,U,V,S):
-    A_dot = A_dot_fun(t,n,m)
     m,n = U.shape[0],V.shape[0]
+    A_dot = A_dot_fun(t,n,m)
     K1_S = h*U.T@A_dot@V
     S05 = S + 0.5*K1_S
 
