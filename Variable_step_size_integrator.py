@@ -31,7 +31,19 @@ def construct_U_S_V_0(A):
     for i,s in enumerate(S):
         Sigma[i,i] = s
     
-    return U,Sigma,V.T  #dobbelt sjekk
+    return U,Sigma,V.T 
+
+def construct_U_S_V_0_k(A,k):
+    U,S,V = np.linalg.svd(A) # can use hermitain = True if symetric
+
+    Sigma = np.zeros(A.shape)
+    for i in range(k):
+        Sigma[i,i] = S[i]
+    
+    U = U[:k,:]
+    V = V[:,:k]
+
+    return U,Sigma,V.T 
 
 
 def variable_solver(t0,tf,A_dot,tol,h0,method):
@@ -42,7 +54,10 @@ def variable_solver(t0,tf,A_dot,tol,h0,method):
     count = 0
     while t < tf:
         q = np.linalg.norm
-        print('count',count,'j',j,'t',t,'h',h,'u',q(U),'v',q(V),'s',q(S))
+        r = np.round
+        print('count',count,'j',j,'t',t,'h',h,
+        'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
+
         K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h,t,U,V,S)
         
         S1_est = S05 + 0.5*K1_S
@@ -61,12 +76,13 @@ def variable_solver(t0,tf,A_dot,tol,h0,method):
             h = h_new
             count += 1
         else: # accept 
-            # missing update of U,S,V
+            U,S,V = U1,S1,V1
             h_old = h
             h = h_new
             j += 1
             count = 0
 
+        
     if t > tf: # recomputing last step
         t = t-h_old
         h = tf-t
