@@ -8,17 +8,16 @@ def A_fun(t,n,m):
     A = np.exp(-t)*np.sin(np.pi*X)*np.sin(2*np.pi*Y) #removed 5pi^2
     return A
 
-def laplace(m,n):
+def laplace(n,m):
     ones = np.ones((n)-2)
     k = 1/n 
     L =  1/k**2*(2*np.diag(ones) - np.diag(ones[:-1],-1) - np.diag(ones[:-1],1)) 
     return np.pad(L,1)
 
-
 def A_dot_fun(t,n,m):
     A = A_fun(t,n,m)
     L = laplace(n,m)
-    A_dot = L@A.ravel() + A.ravel()@L
+    A_dot = L@A + A@L
     return A_dot.reshape(n,m)
 
 
@@ -31,8 +30,8 @@ def FV(V,R,n):
     return (I-V@V.T)@R@V
 
 #Time integration of a low-rank linear matrix ODE
-def second_order_method(h,t,U,V,S):
-    L = laplace(U.shape[0],V.shape[0])
+def second_order_method(h,t,U,V,S): # takes in t as a dummyvariable so it works with the same solver
+    L = laplace(U.shape[0],V.shape[0]) 
     Q = L
     R = L
     m,n = U.shape[0],V.shape[0]

@@ -1,27 +1,6 @@
 import numpy as np
 import Example_matrices as ex
 
-def A_fun(t,n,m):
-    x = np.linspace(0,1,n)
-    y = np.linspace(0,1,m)
-    X,Y = np.meshgrid(x,y)
-    A = np.exp(-t)*np.sin(np.pi*X)*np.sin(2*np.pi*Y) #removed 5pi^2
-    return A
-
-def laplace(m,n):
-    ones = np.ones((m)*(n))
-    k = np.min([1/n,1/m]) # dobbelsjekk
-    L =  1/k**2*(2*np.diag(ones) - np.diag(ones[:-1],-1) - np.diag(ones[:-1],1)) 
-    return L
-
-
-def A_dot_fun(t,n,m):
-    A = A_fun(t,n,m)
-    L = laplace(n,m)
-    A_dot = L@A.ravel() + A.ravel()@L
-    return A_dot.reshape(n,m)
-
-
 #Naive method
 def cay_operator(B):
     I = np.eye(B.shape[0])
@@ -47,9 +26,6 @@ def cay_factorized(F,mat):
 
     return I + C@DTC_inv@D.T
 
-#QR method not finished
-def cay_operator_QR(F,U):
-    pass
 
 def FU(U,A_dot,V,S):
     I_mm = np.eye(U.shape[0])
@@ -60,8 +36,7 @@ def FV(V,A_dot,U,S):
     return (I_mm-V@V.T)@A_dot.T@U@np.linalg.inv(S).T
 
 #most change cay operator to cay factorized
-def second_order_method(h,t,U,V,S): #should take in A_dot in some way
-    m,n = U.shape[0],V.shape[0]
+def second_order_method(h,t,U,V,S): 
     A_dot = ex.A_dot(t, epsilon = 1/2) # 
     K1_S = h*U.T@A_dot@V
     S05 = S + 0.5*K1_S

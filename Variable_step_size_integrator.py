@@ -23,31 +23,23 @@ def step_control(sigma,tol,h,t):
         h_new = R*h
     return t_new,h_new
 
-
-def construct_U_S_V_0(A):
-    U,S,V = np.linalg.svd(A) # can use hermitain = True if symetric
-
-    Sigma = np.zeros(A.shape)
-    for i,s in enumerate(S):
-        Sigma[i,i] = s
-    
-    return U,Sigma,V.T 
-
 def construct_U_S_V_0_k(A,k):
-    U,S,V = np.linalg.svd(A) # can use hermitain = True if symetric
+    U,S,V = np.linalg.svd(A) # can use hermitain = True if symetric. svd returns V.T
 
-    Sigma = np.zeros(A.shape)
-    for i in range(k):
-        Sigma[i,i] = S[i]
-    
-    U = U[:k,:]
-    V = V[:,:k]
+    Sigma = np.diag(S[:k])
+    U = U[:,:k]
+    V = V[:k,:]
 
-    return U,Sigma,V.T 
+    return U,Sigma,V.T # must change V.T to V for rest of code to work as intended
 
+def variable_solver(t0,tf,A_dot,tol,h0,method,k,naive = False):
+    if naive: #should be moved into method either with sending as a paramterer or just defined in the method
+        cay_operator = dlr.cay_operator
+    else:
+        cay_operator = dlr.cay_factorized
 
-def variable_solver(t0,tf,A_dot,tol,h0,method):
-    U, S, V = construct_U_S_V_0(A_dot) # construct initial conditions
+    Y = np.zeros((A_dot.shape))
+    U, S, V = construct_U_S_V_0_k(A_dot,k) # construct initial conditions
     t = t0
     h = h0
     j = 0
@@ -55,14 +47,13 @@ def variable_solver(t0,tf,A_dot,tol,h0,method):
     while t < tf:
         q = np.linalg.norm
         r = np.round
-        print('count',count,'j',j,'t',t,'h',h,
-        'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
+        #print('count',count,'j',j,'t',t,'h',h,'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
 
         K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h,t,U,V,S)
         
         S1_est = S05 + 0.5*K1_S
-        U1_est = dlr.cay_operator(K1_U)@U
-        V1_est = dlr.cay_operator(K1_V)@V
+        U1_est = cay_operator(K1_U)@U
+        V1_est = cay_operator(K1_V)@V
 
         sigma = np.linalg.norm(U1@S1@V1.T-U1_est@S1_est@V1_est.T,'fro')
         
@@ -81,12 +72,27 @@ def variable_solver(t0,tf,A_dot,tol,h0,method):
             h = h_new
             j += 1
             count = 0
+            # computing norms
+            Y_temp = U1@S1@V1.T
+            Y = np.hstack((Y,Y_temp))
 
-        
     if t > tf: # recomputing last step
         t = t-h_old
         h = tf-t
         _,_,_,_,U1,S1,V1 = method(h,t,U,V,S)
         j += 1
 
-    return U1,S1,V1,j
+    return Y,j
+
+def format_result(A_dot,Y):
+    """
+    Converts the concatenated Y-matrix from a wide matrix to a 3D array
+    """
+    m,n = A_dot.shape
+    len_t = int(Y.shape[1]/n)
+    Yt = np.zeros((len_t,m,n))
+
+    for i in range(len_t):
+        Yt[i,:,:] = Y[:,i*m:(i+1)*m]
+
+    return Yt
