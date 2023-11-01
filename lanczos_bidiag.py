@@ -56,21 +56,33 @@ def lanczosBiDiag(A,k,b, orthogonalize = False):
     return Pk,Qk,Bk
 
 
-def plotSingularValues(A):
+def plotSingularValues(A1,A2,A3):
     """
     Compute the singular values of matrix A, and plot them
     input: 
-    A -  matrix for which is to be done SVD on.
+    A_i - matrices for which is to be done SVD on.
     """
-    sing_vals = np.linalg.svd(A)[1]
-    plt.plot([i for i in range(1,len(sing_vals)+1)],sing_vals)
-    plt.grid(True)
-    plt.title("Singular values")
-    plt.xlabel('singular value number')
-    plt.ylabel('singular value')
-    plt.show()
+    fig, (ax1, ax2,ax3) = plt.subplots(1, 3, figsize = (20,5))
 
-def compareApproximations(A):
+    sing_vals_A1 = np.linalg.svd(A1)[1]
+    sing_vals_A2 = np.linalg.svd(A2)[1]  
+    sing_vals_A3 = np.linalg.svd(A3)[1]
+    
+    ax1.plot([i for i in range(1,len(sing_vals_A1)+1)],sing_vals_A1)
+    ax2.plot([i for i in range(1,len(sing_vals_A2)+1)],sing_vals_A2)
+    ax3.plot([i for i in range(1,len(sing_vals_A3)+1)],sing_vals_A3)
+    
+    
+    ax1.set_title("Singular values for A1")
+    ax2.set_title("Singular values for A2")
+    ax3.set_title("Singular values for A3")
+    
+    for ax in (ax1, ax2,ax3):
+        ax.set(xlabel='singular value number', ylabel='singular value')
+        ax.grid(True)
+
+
+def compareApproximations(A,b):
     """
     Compares the Frobenius norm of resulting matrices when using Lanczos bidiagonalization and SVD decomposition.
     This is done for all values of k from 1 to n. Result is then plotted.
@@ -78,7 +90,6 @@ def compareApproximations(A):
     A - matrix to be approximated
     """
     m,n = np.shape(A)
-    b = np.ones(m)
     P,Q,B = lanczosBiDiag(A,n,b, orthogonalize = True)
     U,S,VT = np.linalg.svd(A)
     
@@ -98,12 +109,14 @@ def compareApproximations(A):
         A_svd = np.dot(Uk, np.dot(Sk, VTk))
         svd_norm[k-1] = np.linalg.norm(A-A_svd)
         bidiag_norm[k-1] = np.linalg.norm(A-A_bidiag)
-        
+    
+    plt.figure(figsize = (10,6))
     plt.title("Frobenius norm of SVD and Lanczos bidiagonalization matrices")
+    plt.grid(True)
     plt.ylabel("Frobenius normed error")
     plt.xlabel("value of k")
     plt.plot([i for i in range(1,n+1)],svd_norm, label = "SVD")
-    plt.plot([i for i in range(1,n+1)],bidiag_norm, label = "Lanczos")
+    plt.plot([i for i in range(1,n+1)],bidiag_norm,"--", label = "Lanczos")
     plt.legend()
     plt.show()
 
