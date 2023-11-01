@@ -1,4 +1,5 @@
 import numpy as np
+import Example_matrices as ex
 
 def A_fun(t,n,m):
     x = np.linspace(0,1,n)
@@ -59,9 +60,9 @@ def FV(V,A_dot,U,S):
     return (I_mm-V@V.T)@A_dot.T@U@np.linalg.inv(S).T
 
 #most change cay operator to cay factorized
-def second_order_method(h,t,U,V,S):
+def second_order_method(h,t,U,V,S): #should take in A_dot in some way
     m,n = U.shape[0],V.shape[0]
-    A_dot = A_dot_fun(t,n,m)
+    A_dot = ex.A_dot(t, epsilon = 1/2) # 
     K1_S = h*U.T@A_dot@V
     S05 = S + 0.5*K1_S
 
@@ -73,9 +74,9 @@ def second_order_method(h,t,U,V,S):
     K1_V = h*(FVj@V.T-V@FVj.T)
     V05 = cay_operator(0.5*K1_V)@V
 
-    A_dot05 = A_dot_fun(t+h/2,n,m)
-    K2_S = h*U05.T@A_dot05@V
-    S1 = S + 0.5*K2_S
+    A_dot05 = ex.A_dot(t+h/2, epsilon = 1/2)
+    K2_S = h*U05.T@A_dot05@V05
+    S1 = S + K2_S
 
     FU05 = FU(U05,A_dot05,V05,S05) 
     K2_U = h*(FU05@U05.T-U05@FU05.T)
