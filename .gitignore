@@ -1,2 +1,3 @@
 test
 *.xopp
+__pycache__
