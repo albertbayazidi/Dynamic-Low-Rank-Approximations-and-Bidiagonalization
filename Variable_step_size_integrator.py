@@ -3,18 +3,18 @@ import dynamic_low_rank as dlr
 
 def step_control(sigma,tol,h,t):
     if sigma > tol:
-        print('action 1','sigma',sigma,'tol',tol)
+        #print('action 1','sigma',sigma,'tol',tol)
         t_new = t-h
         h_new = 0.5*h
     else:
         if sigma > 0.5*tol:
-            print('action 2','sigma',sigma,'tol',tol)
+            #print('action 2','sigma',sigma,'tol',tol)
             R = (tol/sigma)**(1/3)
             if R > 0.9 or R < 0.5: 
                 R = 0.7
         else:
             if sigma > (1/16)*tol:
-                print('action 3','sigma',sigma,'tol',1/16*tol)
+                #print('action 3','sigma',sigma,'tol',1/16*tol)
                 R = 1
             else:
 
@@ -32,12 +32,8 @@ def construct_U_S_V_0_k(A,k):
 
     return U,Sigma,V.T # must change V.T to V for rest of code to work as intended
 
-def variable_solver(t0,tf,A_dot,tol,h0,method,k,naive = False):
-    if naive: #should be moved into method either with sending as a paramterer or just defined in the method
-        cay_operator = dlr.cay_operator
-    else:
-        cay_operator = dlr.cay_factorized
-
+#change cay_operator to cay_operator_facotrized
+def variable_solver(t0,tf,A_dot,tol,h0,method,k,):
     Y = np.zeros((A_dot.shape))
     U, S, V = construct_U_S_V_0_k(A_dot,k) # construct initial conditions
     t = t0
@@ -52,8 +48,8 @@ def variable_solver(t0,tf,A_dot,tol,h0,method,k,naive = False):
         K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h,t,U,V,S)
         
         S1_est = S05 + 0.5*K1_S
-        U1_est = cay_operator(K1_U)@U
-        V1_est = cay_operator(K1_V)@V
+        U1_est = dlr.cay_operator(K1_U)@U
+        V1_est = dlr.cay_operator(K1_V)@V
 
         sigma = np.linalg.norm(U1@S1@V1.T-U1_est@S1_est@V1_est.T,'fro')
         
