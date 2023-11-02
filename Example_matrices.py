@@ -12,7 +12,7 @@ def generateA(epsilon):
     """
     first_block =  np.random.rand(10,10)/2 + np.identity(10)
     A = epsilon * np.random.rand(100,100)
-    A [:10,:10] += first_block
+    A [:10,:10] = first_block
     return A
 
 

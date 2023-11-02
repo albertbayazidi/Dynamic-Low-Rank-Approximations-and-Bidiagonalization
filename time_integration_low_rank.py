@@ -36,7 +36,7 @@ def second_order_method(h,t,U,V,S): # takes in t as a dummyvariable so it works 
     R = L
     m,n = U.shape[0],V.shape[0]
 
-    K1_S = h*U.T@Q@U@S + S@V.T@R@V
+    K1_S = h*(U.T@Q@U@S + S@V.T@R@V)
     S05 = S + 0.5*K1_S
 
     FUj = FU(U,Q,m)
@@ -47,8 +47,8 @@ def second_order_method(h,t,U,V,S): # takes in t as a dummyvariable so it works 
     K1_V = h*(FVj@V.T-V@FVj.T)
     V05 = dlr.cay_operator(0.5*K1_V)@V
 
-    K2_S = h*U05.T@Q@U05@S05 + S05@V05.T@R@V05 # blir ikke brukt i denne metoden
-    S1 = S + h*U.T@Q@U@S + S@V.T@R@V
+    K2_S = h*(U05.T@Q@U05@S05 + S05@V05.T@R@V05) # blir ikke brukt i denne metoden
+    S1 = S + h*(U.T@Q@U@S + S@V.T@R@V)
 
     FU05 = FU(U05,Q,m) 
     K2_U = h*(FU05@U05.T-U05@FU05.T)

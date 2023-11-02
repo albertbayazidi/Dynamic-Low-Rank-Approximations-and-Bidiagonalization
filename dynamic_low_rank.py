@@ -29,11 +29,11 @@ def cay_factorized(F,mat):
 
 def FU(U,A_dot,V,S):
     I_mm = np.eye(U.shape[0])
-    return (I_mm-U@U.T)@A_dot@V@np.linalg.inv(S)
+    return (I_mm-U@U.T)@A_dot@V@np.linalg.inv(S) # can change inverse of S to 1/S
 
 def FV(V,A_dot,U,S):
-    I_mm = np.eye(U.shape[0])
-    return (I_mm-V@V.T)@A_dot.T@U@np.linalg.inv(S).T
+    I_mm = np.eye(V.shape[0])
+    return (I_mm-V@V.T)@A_dot.T@U@np.linalg.inv(S).T# can change inverse of S to 1/S
 
 #most change cay operator to cay factorized
 def second_order_method(h,t,U,V,S): 
