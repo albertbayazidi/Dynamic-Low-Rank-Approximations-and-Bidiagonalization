@@ -1,25 +1,33 @@
 import numpy as np
 import dynamic_low_rank as dlr
 
-def A_fun(t,n,m):
+# change this function to comunicate with how u should be definde
+# should be square matrix
+def u_fun(g,n,m):
     x = np.linspace(0,1,n)
     y = np.linspace(0,1,m)
     X,Y = np.meshgrid(x,y)
-    A = np.exp(-t)*np.sin(np.pi*X)*np.sin(2*np.pi*Y) #removed 5pi^2
+    A = g(X,Y)
+    
+    A[:,0] = 0
+    A[0,:] = 0
+    A[:,-1] = 0
+    A[-1,:-1] = 0
+
     return A
 
-def laplace(n,m):
+# should be square matrix
+def laplace(n): 
     ones = np.ones((n)-2)
     k = 1/n 
     L =  1/k**2*(2*np.diag(ones) - np.diag(ones[:-1],-1) - np.diag(ones[:-1],1)) 
     return np.pad(L,1)
 
-def A_dot_fun(t,n,m):
-    A = A_fun(t,n,m)
-    L = laplace(n,m)
-    A_dot = L@A + A@L
+def u_dot_fun(g,n,m):
+    u = u_fun(g,n,m)
+    L = laplace(n)
+    A_dot = L@u + u@L
     return A_dot.reshape(n,m)
-
 
 def FU(U,Q,m):
     I = np.eye(m)
@@ -31,7 +39,7 @@ def FV(V,R,n):
 
 #Time integration of a low-rank linear matrix ODE
 def second_order_method(h,t,U,V,S): # takes in t as a dummyvariable so it works with the same solver
-    L = laplace(U.shape[0],V.shape[0]) 
+    L = laplace(U.shape[0]) 
     Q = L
     R = L
     m,n = U.shape[0],V.shape[0]

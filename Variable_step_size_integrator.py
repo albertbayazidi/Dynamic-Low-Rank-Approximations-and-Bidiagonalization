@@ -24,8 +24,7 @@ def step_control(sigma,tol,h,t):
         h_new = R*h
     return t_new,h_new
 
-def construct_U_S_V_0_k(k):
-    A = ex.A(0, epsilon = 1/2)
+def construct_U_S_V_0_k(k,A):
     U,S,V = np.linalg.svd(A) # can use hermitain = True if symetric. svd returns V.T
 
     Sigma = np.diag(S[:k])
@@ -35,9 +34,9 @@ def construct_U_S_V_0_k(k):
     return U,Sigma,V.T # must change V.T to V for rest of code to work as intended
 
 #change cay_operator to cay_operator_facotrized
-def variable_solver(t0,tf,A_dot,tol,h0,method,k,):
-    Y = np.zeros((A_dot.shape))
-    U, S, V = construct_U_S_V_0_k(k) # construct initial conditions
+def variable_solver(t0,tf,A,tol,h0,method,k):
+    Y = np.zeros((A.shape))
+    U, S, V = construct_U_S_V_0_k(k,A) # construct initial conditions
     t = t0
     h = h0
     j = 0
@@ -45,7 +44,7 @@ def variable_solver(t0,tf,A_dot,tol,h0,method,k,):
     while t < tf:
         q = np.linalg.norm
         r = np.round
-        print('count',count,'j',j,'t',t,'h',h,'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
+        #print('count',count,'j',j,'t',t,'h',h,'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
 
         K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h,t,U,V,S)
         
