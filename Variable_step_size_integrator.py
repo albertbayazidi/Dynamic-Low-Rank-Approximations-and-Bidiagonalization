@@ -39,6 +39,9 @@ def construct_U_S_V_0_k(k,A):
 def variable_solver(t0,tf,A,tol,h0,method,k):
     Y = np.zeros((A.shape))
     U, S, V = construct_U_S_V_0_k(k,A) # construct initial conditions
+    
+    Y0 = U@S@V.T
+    Y = np.hstack((Y,Y0))
 
     t = t0
     h = h0
@@ -56,11 +59,8 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
         V1_est = dlr.cay_operator(K1_V)@V
 
         sigma = np.linalg.norm(U1@S1@V1.T - U1_est@S1_est@V1_est.T,'fro')
-       # print("sigma: ", sigma)
         t = t + h
         t_new,h_new = step_control(sigma,tol,h,t)
-       # print("t_new: ",t_new)
-        #print("h_new: ", h_new)
 
         if t_new < t and count <= 3: # reject and try again with new 
             #K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h_new,t_new,U,V,S)
@@ -76,7 +76,6 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
             # computing norms
             Y_temp = U1@S1@V1.T
             Y = np.hstack((Y,Y_temp))
-        print("t: ", t)
 
     if t > tf: # recomputing last step
         t = t-h_old
@@ -86,11 +85,11 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
 
     return Y,j
 
-def format_result(A_dot,Y):
+def format_result(A,Y):
     """
     Converts the concatenated Y-matrix from a wide matrix to a 3D array
     """
-    m,n = A_dot.shape
+    m,n = A.shape
     len_t = int(Y.shape[1]/n)
     Yt = np.zeros((len_t,m,n))
 
