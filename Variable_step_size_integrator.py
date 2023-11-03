@@ -5,11 +5,12 @@ import Example_matrices as ex
 def step_control(sigma,tol,h,t):
     if sigma > tol:
         #print('action 1','sigma',sigma,'tol',tol)
+
         t_new = t-h
         h_new = 0.5*h
     else:
         if sigma > 0.5*tol:
-            #print('action 2','sigma',sigma,'tol',tol)
+           # print('action 2','sigma',sigma,'tol',tol)
             R = (tol/sigma)**(1/3)
             if R > 0.9 or R < 0.5: 
                 R = 0.7
@@ -18,6 +19,7 @@ def step_control(sigma,tol,h,t):
                 #print('action 3','sigma',sigma,'tol',1/16*tol)
                 R = 1
             else:
+               # print("action 4")
 
                 R = 2
         t_new = t
@@ -37,6 +39,7 @@ def construct_U_S_V_0_k(k,A):
 def variable_solver(t0,tf,A,tol,h0,method,k):
     Y = np.zeros((A.shape))
     U, S, V = construct_U_S_V_0_k(k,A) # construct initial conditions
+
     t = t0
     h = h0
     j = 0
@@ -52,10 +55,11 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
         U1_est = dlr.cay_operator(K1_U)@U
         V1_est = dlr.cay_operator(K1_V)@V
 
-        sigma = np.linalg.norm(U1@S1@V1.T-U1_est@S1_est@V1_est.T,'fro')
-        
+        sigma = np.linalg.norm(U1@S1@V1.T - U1_est@S1_est@V1_est.T,'fro')
+       # print("sigma: ", sigma)
         t = t + h
         t_new,h_new = step_control(sigma,tol,h,t)
+      #  print("t_new: ",t_new)
 
         if t_new < t and count <= 3: # reject and try again
             K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h_new,t_new,U,V,S)
@@ -72,6 +76,9 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
             # computing norms
             Y_temp = U1@S1@V1.T
             Y = np.hstack((Y,Y_temp))
+       # print("t: ", t)
+
+
 
     if t > tf: # recomputing last step
         t = t-h_old
