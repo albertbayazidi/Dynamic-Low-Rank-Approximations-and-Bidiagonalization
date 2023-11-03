@@ -50,7 +50,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
         #print('count',count,'j',j,'t',t,'h',h,'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
 
         K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h,t,U,V,S)
-        
+
         S1_est = S05 + 0.5*K1_S
         U1_est = dlr.cay_operator(K1_U)@U
         V1_est = dlr.cay_operator(K1_V)@V
@@ -59,11 +59,11 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
        # print("sigma: ", sigma)
         t = t + h
         t_new,h_new = step_control(sigma,tol,h,t)
-      #  print("t_new: ",t_new)
+       # print("t_new: ",t_new)
+        #print("h_new: ", h_new)
 
-        if t_new < t and count <= 3: # reject and try again
-            K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h_new,t_new,U,V,S)
-        
+        if t_new < t and count <= 3: # reject and try again with new 
+            #K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h_new,t_new,U,V,S)
             t = t_new
             h = h_new
             count += 1
@@ -76,9 +76,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
             # computing norms
             Y_temp = U1@S1@V1.T
             Y = np.hstack((Y,Y_temp))
-       # print("t: ", t)
-
-
+        print("t: ", t)
 
     if t > tf: # recomputing last step
         t = t-h_old

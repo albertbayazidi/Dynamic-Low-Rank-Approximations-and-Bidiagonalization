@@ -15,9 +15,9 @@ def generateA(epsilon):
     A [:10,:10] = first_block
     return A
 
-
-
-def A(t, epsilon = 1/2): 
+A1 = generateA(1/2)
+A2 = generateA(1/2)
+def A(t): 
     """
     Generate A-matrix as described in task 4
     input: 
@@ -26,8 +26,6 @@ def A(t, epsilon = 1/2):
     output:
     the matrix A evaluated at time t
     """
-    A1 = generateA(epsilon)
-    A2 = generateA(epsilon)
     
     Id = np.identity(100)
     
@@ -39,7 +37,7 @@ def A(t, epsilon = 1/2):
     
     return Q1(t) @ (A1 + np.exp(t) * A2) @ Q2(t).T
 
-def A_dot(t, epsilon = 1/2):
+def A_dot(t):
     """
     Generate the time-derivative of A-matrix as described in task 4
     input: 
@@ -49,9 +47,6 @@ def A_dot(t, epsilon = 1/2):
     the derivative of matrix A evaluated at time t
     """
 
-    A1 = generateA(epsilon)
-    A2 = generateA(epsilon)
-    
     Id = np.identity(100)
     
     T1 = np.diag(-np.ones(99), k=1) + np.diag(np.ones(99), k=-1)

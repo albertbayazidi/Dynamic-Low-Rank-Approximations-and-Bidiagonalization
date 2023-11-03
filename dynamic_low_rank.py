@@ -39,7 +39,7 @@ def FV(V,A_dot,U,S):
 
 #most change cay operator to cay factorized
 def second_order_method(h,t,U,V,S): 
-    A_dot = ex.A_dot(t, epsilon = 1/2) 
+    A_dot = ex.A_dot(t) 
     K1_S = h*U.T@A_dot@V
     S05 = S + 0.5*K1_S
 
@@ -51,7 +51,7 @@ def second_order_method(h,t,U,V,S):
     K1_V = h*(FVj@V.T-V@FVj.T)
     V05 = cay_operator(0.5*K1_V)@V
 
-    A_dot05 = ex.A_dot(t+h/2, epsilon = 1/2)
+    A_dot05 = ex.A_dot(t+h/2)
     K2_S = h*U05.T@A_dot05@V05
     S1 = S + K2_S
 
