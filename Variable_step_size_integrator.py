@@ -41,8 +41,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
     U, S, V = construct_U_S_V_0_k(k,A) # construct initial conditions
     
     Y0 = U@S@V.T
-    Y = np.hstack((Y,Y0))
-
+    Y = Y0
     t = t0
     h = h0
     j = 0
