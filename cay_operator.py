@@ -1,7 +1,11 @@
 import numpy as np
 
 #Naive method
-def cay_operator(B):
+def cay_operator(Obj):
+    # Obj = [F,mat]
+    F = Obj[0]
+    mat = Obj[1]
+    B = F@mat.T-mat@F.T 
     I = np.eye(B.shape[0])
     inv = np.linalg.inv((I-0.5*B)) 
     return inv@(I+0.5*B)
