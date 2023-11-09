@@ -21,7 +21,7 @@ def laplace(n):
     # n = dim of L - matrix (which is for N+1 points)
     ones = np.ones((n)-2)
     k = 1/(n-1) 
-    L =  1/k**2*(2*np.diag(ones) - np.diag(ones[:-1],-1) - np.diag(ones[:-1],1)) 
+    L =  1/k**2*(-2*np.diag(ones) + np.diag(ones[:-1],-1) + np.diag(ones[:-1],1)) 
     return np.pad(L,1)
 
 def u_dot_fun(g,n,m):
