@@ -1,5 +1,5 @@
 import numpy as np
-import dynamic_low_rank as dlr
+import cay_operator as cay
 
 # change this function to comunicate with how u should be definde
 # should be square matrix
@@ -49,24 +49,28 @@ def second_order_method(h,t,U,V,S): # takes in t as a dummyvariable so it works 
     S05 = S + 0.5*K1_S 
 
     FUj = FU(U,Q,m) 
-    K1_U = h*(FUj@U.T-U@FUj.T) 
-    U05 = dlr.cay_operator(0.5*K1_U)@U 
+    #K1_U = h*(FUj@U.T-U@FUj.T) 
+    K1_U = [h*0.5*FUj,h*0.5*U]
+    U05 = cay.cay_factorized(K1_U)@U # droped 0.5
 
     FVj = FV(V,R,n) 
-    K1_V = h*(FVj@V.T-V@FVj.T) 
-    V05 = dlr.cay_operator(0.5*K1_V)@V 
+    #K1_V = h*(FVj@V.T-V@FVj.T)
+    K1_V = [h*0.5*FVj,h*0.5*V]
+    V05 = cay.cay_factorized(K1_V)@V # droped 0.5
 
     K2_S = h*(U05.T@Q@U05@S05 + S05@V05.T@R@V05)  
     #S1 = S + h*(U.T@Q@U@S + S@V.T@R@V)
     S1 = S + K2_S
 
     FU05 = FU(U05,Q,m) 
-    K2_U = h*(FU05@U05.T-U05@FU05.T)
-    U1 = dlr.cay_operator(K2_U)@U  
+    #K2_U = h*(FU05@U05.T-U05@FU05.T)
+    K2_U = [h*FU05,h*U05]
+    U1 = cay.cay_factorized(K2_U)@U  # droped 0.5
 
     FV05 = FV(V05,R,n) 
-    K2_V = h*(FV05@V05.T-V05@FV05.T)
-    V1 = dlr.cay_operator(K2_V)@V
+    #K2_V = h*(FV05@V05.T-V05@FV05.T)
+    K2_V = [h*FV05,h*V05]
+    V1 = cay.cay_factorized(K2_V)@V # droped 0.5
 
     return K1_U,K1_V,S05,K1_S,U1,S1,V1
     

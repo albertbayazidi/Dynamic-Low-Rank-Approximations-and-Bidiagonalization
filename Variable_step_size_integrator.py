@@ -1,5 +1,5 @@
 import numpy as np
-import dynamic_low_rank as dlr 
+import cay_operator as cay
 import Example_matrices as ex
 
 def step_control(sigma,tol,h,t):
@@ -41,8 +41,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
     U, S, V = construct_U_S_V_0_k(k,A) # construct initial conditions
     
     Y0 = U@S@V.T
-    Y = np.hstack((Y,Y0))
-
+    Y = Y0
     t = t0
     h = h0
     j = 0
@@ -50,13 +49,13 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
     while t < tf:
         q = np.linalg.norm
         r = np.round
-        #print('count',count,'j',j,'t',t,'h',h,'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
+        print('count',count,'j',j,'t',t,'h',h,'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
 
         K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h,t,U,V,S)
 
         S1_est = S05 + 0.5*K1_S
-        U1_est = dlr.cay_operator(K1_U)@U
-        V1_est = dlr.cay_operator(K1_V)@V
+        U1_est = cay.cay_factorized(K1_U)@U
+        V1_est = cay.cay_factorized(K1_V)@V
 
         sigma = np.linalg.norm(U1@S1@V1.T - U1_est@S1_est@V1_est.T,'fro')
         t = t + h

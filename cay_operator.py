@@ -1,12 +1,19 @@
 import numpy as np
 
 #Naive method
-def cay_operator(B):
+def cay_operator(Obj):
+    # Obj = [F,mat]
+    F = Obj[0]
+    mat = Obj[1]
+    B = F@mat.T-mat@F.T 
     I = np.eye(B.shape[0])
     inv = np.linalg.inv((I-0.5*B)) 
     return inv@(I+0.5*B)
 
-def cay_factorized(F,mat):
+def cay_factorized(Obj):
+    # Obj = [F,mat]
+    F = Obj[0]
+    mat = Obj[1]
     C = np.block([F,-mat])
     D = np.block([mat,F])
 
@@ -22,7 +29,9 @@ def cay_factorized(F,mat):
 
     return I_fin + C@DTC_inv@D.T
 
-def cay_factorized_optim(F,mat):
+def cay_factorized_optim(Obj):
+    F = Obj[0]
+    mat = Obj[1]
     C = np.block([F,-mat])
     D = np.block([mat,F])
     I_int = np.eye(mat.shape[1])
