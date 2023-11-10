@@ -96,12 +96,13 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
     #return Y,U_tensor,S_tensor,V_tensor,t_vals
     return U_tensor,S_tensor,V_tensor,t_vals
 
-def format_Yt(A,U,S,V):
+
+def format_Yt_temp(A,U,S,V):
     """
     Converts the concatenated Y-matrix from a wide matrix to a 3D array
     """
     m,n = A.shape
-    len_t = int(S.shape[1]/n)
+    len_t = int(U.shape[1]/n)
     Ut = np.zeros((len_t,m,n))
     St = np.zeros((len_t,m,n))
     Vt = np.zeros((len_t,m,n))
@@ -111,9 +112,8 @@ def format_Yt(A,U,S,V):
         St[i,:,:] = S[:,i*m:(i+1)*m]
         Vt[i,:,:] = V[:,i*m:(i+1)*m]
 
-        Yt[i] = Ut[i]@St[i]@Vt[i].T
-        
-    return Yt
+        Yt[i] = Ut[i,:,:]@St[i,:,:]@Vt[i,:,:] # V.T som er usikker
+    return Ut,St,Vt,Yt
 
 
 def format_result(A,Y):
