@@ -11,15 +11,16 @@ def generateA(epsilon):
     The matrix A1 or A2
     """
     np.random.seed(1)
-    first_block =  np.random.rand(10,10)/2 + np.identity(10)
+    first_block =  np.random.rand(10,10)/2 +  np.ones((10,10)) #+ np.identity(10)
     A = epsilon * np.random.rand(100,100)
     A [:10,:10] = first_block
     return A
 
 # Generate A1 and A2 once, to be used in all experiments
 np.random.seed(1)
-A1 = generateA(1/2)
-A2 = generateA(1/2)
+A1 = generateA(0.1)
+A2 = generateA(0.1)
+
 def A(t): 
     """
     Generate A-matrix as described in task 4

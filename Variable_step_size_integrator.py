@@ -46,6 +46,8 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
     h = h0
     j = 0
     count = 0
+
+    t_vals = []
     while t < tf:
         q = np.linalg.norm
         r = np.round
@@ -76,13 +78,17 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
             Y_temp = U1@S1@V1.T
             Y = np.hstack((Y,Y_temp))
 
+            ## for testing 
+            t_vals.append(t)
+            ##
+
     if t > tf: # recomputing last step
         t = t-h_old
         h = tf-t
         _,_,_,_,U1,S1,V1 = method(h,t,U,V,S)
         j += 1
 
-    return Y,j
+    return Y,U1,S1,V1,t_vals
 
 def format_result(A,Y):
     """
