@@ -50,7 +50,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
     j = 0
     count = 0
 
-    t_vals = []
+    t_vals = [0]
     while t < tf:
         q = np.linalg.norm
         r = np.round
@@ -92,6 +92,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
         h = tf-t
         _,_,_,_,U1,S1,V1 = method(h,t,U,V,S)
         j += 1
+        t_vals[-1] = tf
 
     #return Y,U_tensor,S_tensor,V_tensor,t_vals
     return U_tensor,S_tensor,V_tensor,t_vals
@@ -101,19 +102,21 @@ def format_Yt(A,U,S,V):
     Converts the concatenated Y-matrix from a wide matrix to a 3D array
     """
     m,n = A.shape
-    len_t = int(S.shape[1]/n)
-    Ut = np.zeros((len_t,m,n))
-    St = np.zeros((len_t,m,n))
-    Vt = np.zeros((len_t,m,n))
+    k = np.shape(S)[0]
+    len_t = int(S.shape[1]/k)
+    Ut = np.zeros((len_t,m,k))
+    St = np.zeros((len_t,k,k))
+    Vt = np.zeros((len_t,n,k)) # Not transposed here
     Yt = np.zeros((len_t,m,n))
+
     for i in range(len_t):
-        Ut[i,:,:] = U[:,i*m:(i+1)*m]
-        St[i,:,:] = S[:,i*m:(i+1)*m]
-        Vt[i,:,:] = V[:,i*m:(i+1)*m]
+        Ut[i,:,:] = U[:,i*k:(i+1)*k]
+        St[i,:,:] = S[:,i*k:(i+1)*k]
+        Vt[i,:,:] = V[:,i*k:(i+1)*k]
 
         Yt[i] = Ut[i]@St[i]@Vt[i].T
         
-    return Yt
+    return Yt,Ut,St,Vt
 
 
 def format_result(A,Y):
@@ -128,3 +131,19 @@ def format_result(A,Y):
         Yt[i,:,:] = Y[:,i*m:(i+1)*m]
 
     return Yt
+
+
+def extract_singular_values(S_matrix):
+    len_t,k = np.shape(S_matrix)[:2]
+    S = np.zeros((len_t,k))
+    for i in range(len_t):   
+       S[i,:] = np.diag(S_matrix[i])
+    return S.T
+
+
+def compute_singular_values(A,k,t_vals):
+    sing_vals = np.linalg.svd(A(0))[1][:k]
+    for t in t_vals[1:]:
+        s = np.linalg.svd(A(t))[1][:k]
+        sing_vals = np.vstack((sing_vals,s))
+    return sing_vals.T
