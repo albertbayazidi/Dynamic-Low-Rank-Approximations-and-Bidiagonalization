@@ -98,7 +98,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
     return U_tensor,S_tensor,V_tensor,t_vals
 
 
-def format_Yt_temp(A,U,S,V):
+def format_Yt(A,U,S,V):
     """
     Converts the concatenated Y-matrix from a wide matrix to a 3D array
     """
@@ -140,7 +140,6 @@ def extract_singular_values(S_matrix):
     for i in range(len_t):   
        S[i,:] = np.diag(S_matrix[i])
     return S.T
-
 
 def compute_singular_values(A,k,t_vals):
     sing_vals = np.linalg.svd(A(0))[1][:k]
