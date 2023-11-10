@@ -119,8 +119,9 @@ def format_Yt(A,U,S,V):
         Vt[i,:,:] = V[:,i*k:(i+1)*k]
 
         Yt[i] = Ut[i]@St[i]@Vt[i].T
-        
-    return Yt,Ut,St,Vt
+
+    Yt[-2,:,:] = Yt[-1,:,:]
+    return Yt[:-1],Ut,St,Vt
 
 
 # can be removed later
