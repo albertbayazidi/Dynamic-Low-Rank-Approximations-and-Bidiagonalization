@@ -27,13 +27,13 @@ def step_control(sigma,tol,h,t):
     return t_new,h_new
 
 def construct_U_S_V_0_k(k,A):
-    U,S,V = np.linalg.svd(A) # can use hermitain = True if symetric. svd returns V.T
+    U,S,VT = np.linalg.svd(A) #  svd returns V.T and not V
 
     Sigma = np.diag(S[:k])
     U = U[:,:k]
-    V = V[:k,:]
+    VT = VT[:k,:]
 
-    return U,Sigma,V.T # must change V.T to V for rest of code to work as intended
+    return U,Sigma,VT.T # must return V.T (v.T.T = V) for rest of code to work as intended
 
 #change cay_operator to cay_operator_facotrized
 def variable_solver(t0,tf,A,tol,h0,method,k):
@@ -52,8 +52,8 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
 
     t_vals = [0]
     while t < tf:
-        q = np.linalg.norm
-        r = np.round
+        q = np.linalg.norm # can be moved later
+        r = np.round # can be removed later
         #print('count',count,'j',j,'t',t,'h',h,'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
 
         K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h,t,U,V,S)
@@ -78,8 +78,8 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
             j += 1
             count = 0
             # computing norms
-            Y_temp = U1@S1@V1.T
-            Y = np.hstack((Y,Y_temp))
+            #Y_temp = U1@S1@V1.T
+            #Y = np.hstack((Y,Y_temp))
             U_tensor = np.hstack((U_tensor,U))
             S_tensor = np.hstack((S_tensor,S))
             V_tensor = np.hstack((V_tensor,V))
@@ -91,6 +91,9 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
         t = t-h_old
         h = tf-t
         _,_,_,_,U1,S1,V1 = method(h,t,U,V,S)
+        U_tensor = np.hstack((U_tensor,U1))
+        S_tensor = np.hstack((S_tensor,S1))
+        V_tensor = np.hstack((V_tensor,V1))
         j += 1
         t_vals[-1] = tf
 
@@ -120,6 +123,7 @@ def format_Yt(A,U,S,V):
     return Yt,Ut,St,Vt
 
 
+# can be removed later
 def format_result(A,Y):
     """
     Converts the concatenated Y-matrix from a wide matrix to a 3D array
