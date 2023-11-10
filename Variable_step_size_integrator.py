@@ -37,11 +37,14 @@ def construct_U_S_V_0_k(k,A):
 
 #change cay_operator to cay_operator_facotrized
 def variable_solver(t0,tf,A,tol,h0,method,k):
-    Y = np.zeros((A.shape))
+    #Y = np.zeros((A.shape))
     U, S, V = construct_U_S_V_0_k(k,A) # construct initial conditions
     
     Y0 = U@S@V.T
     Y = Y0
+    U_tensor = U
+    S_tensor = S
+    V_tensor = V
     t = t0
     h = h0
     j = 0
@@ -51,7 +54,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
     while t < tf:
         q = np.linalg.norm
         r = np.round
-        print('count',count,'j',j,'t',t,'h',h,'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
+        #print('count',count,'j',j,'t',t,'h',h,'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
 
         K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h,t,U,V,S)
 
@@ -77,7 +80,9 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
             # computing norms
             Y_temp = U1@S1@V1.T
             Y = np.hstack((Y,Y_temp))
-
+            U_tensor = np.hstack((U_tensor,U))
+            S_tensor = np.hstack((S_tensor,S))
+            V_tensor = np.hstack((V_tensor,V))
             ## for testing 
             t_vals.append(t)
             ##
@@ -88,7 +93,28 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
         _,_,_,_,U1,S1,V1 = method(h,t,U,V,S)
         j += 1
 
-    return Y,U1,S1,V1,t_vals
+    #return Y,U_tensor,S_tensor,V_tensor,t_vals
+    return U_tensor,S_tensor,V_tensor,t_vals
+
+def format_Yt(A,U,S,V):
+    """
+    Converts the concatenated Y-matrix from a wide matrix to a 3D array
+    """
+    m,n = A.shape
+    len_t = int(S.shape[1]/n)
+    Ut = np.zeros((len_t,m,n))
+    St = np.zeros((len_t,m,n))
+    Vt = np.zeros((len_t,m,n))
+    Yt = np.zeros((len_t,m,n))
+    for i in range(len_t):
+        Ut[i,:,:] = U[:,i*m:(i+1)*m]
+        St[i,:,:] = S[:,i*m:(i+1)*m]
+        Vt[i,:,:] = V[:,i*m:(i+1)*m]
+
+        Yt[i] = Ut[i]@St[i]@Vt[i].T
+        
+    return Yt
+
 
 def format_result(A,Y):
     """
