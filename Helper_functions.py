@@ -47,12 +47,12 @@ def solve_heat_eq(k,h0,tf,tol):
     Yt,Ut,St,Vt = vssi.format_Yt(u0,U,S,V)
     u_ex_t = u_exact_t(N,t_vals)
     error = compute_error_norm(t_vals,Yt,u_ex_t)
-    return Yt,Ut,Vt,u_ex_t,error
+    return Yt,Ut,Vt,u_ex_t,error,t_vals
 
 def plot_heat_sol_and_error(k,Yt,u_ex_t,error):
     # comparing the solution to the exact solution
     plt.figure(figsize=(15,5))
-    plt.suptitle(f'Rank {k} Solution of heat and error of')
+    plt.suptitle(f'Solution of heat eq and error for rank {k} ')
     plt.subplot(1,3,1)
     plt.title('nummerical solution')
     plt.imshow(Yt[-1])
@@ -62,7 +62,20 @@ def plot_heat_sol_and_error(k,Yt,u_ex_t,error):
     plt.subplot(1,3,3)
     plt.title('Error')
     plt.xlabel('iteration')
-    plt.plot(error)
+    plt.plot(error[:-1])
+    plt.show()
+
+
+def plot_heat_diff_ranks(Ytk1,Yt):
+    # comparing the solution to the exact solution
+    plt.figure(figsize=(15,5))
+    plt.suptitle(f'Solution of heat eq and error for different ranks')
+    plt.subplot(1,2,1)
+    plt.title('Rank 1 solution')
+    plt.imshow(Ytk1[-1])
+    plt.subplot(1,2,2)
+    plt.title('Higher rank solution')
+    plt.imshow(Yt[-1])
     plt.show()
 
 # computes truncated SVD oF A for all t in t_vals
