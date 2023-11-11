@@ -60,8 +60,7 @@ def A_dot(t):
     Q2 = lambda t :  Id * expm(t *T2)
     
     # using chain rule
-    return (T1 @ Q1(t) @ A1 + np.exp(t)*(Id + T1)@ Q1(t) @ A2) @ Q2(t).T + (Q1(t) @ A1 + np.exp(t) * Q1(t) @ A2) @ (T2@Q2(t)).T
-
+    return T1 @ Q1(t)@ (A1 + np.exp(t)*A2) @ Q2(t).T + Q1(t) @ ( A1 + np.exp(t) * A2) @ (T2@Q2(t)).T + np.exp(t) * Q1(t) @ A2 @ Q2(t).T
 
 def A_2(t):
     """
@@ -103,7 +102,7 @@ def A_2_dot(t):
     Q2 = lambda t :  Id * expm(t *T2)
     
     # using chain rule
-    return (T1 @ Q1(t) @ A1 + -np.sin(t) * Q1(t) @ A2 + np.cos(t) * T1 @ Q1(t) @ A2) @ Q2(t).T + (Q1(t) @ A1 + np.cos(t) * Q1(t) @ A2) @ (T2@Q2(t)).T
+    return  T1 @ Q1(t)@ (A1 + np.cos(t)*A2) @ Q2(t).T + Q1(t) @ ( A1 + np.cos(t) * A2) @ (T2@Q2(t)).T - np.sin(t) * Q1(t) @ A2 @ Q2(t).T
 
 
 np.random.seed(1)
