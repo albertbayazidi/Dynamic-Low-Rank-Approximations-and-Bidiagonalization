@@ -4,24 +4,19 @@ import Example_matrices as ex
 
 def step_control(sigma,tol,h,t):
     if sigma > tol:
-        #print('action 1','sigma',sigma,'tol',tol)
-
         t_new = t-h
         h_new = 0.5*h
     else:
         if sigma > 0.5*tol:
-           # print('action 2','sigma',sigma,'tol',tol)
             R = (tol/sigma)**(1/3)
             if R > 0.9 or R < 0.5: 
                 R = 0.7
         else:
             if sigma > (1/16)*tol:
-                #print('action 3','sigma',sigma,'tol',1/16*tol)
                 R = 1
             else:
-               # print("action 4")
-
                 R = 2
+
         t_new = t
         h_new = R*h
     return t_new,h_new
@@ -37,7 +32,6 @@ def construct_U_S_V_0_k(k,A):
 
 #change cay_operator to cay_operator_facotrized
 def variable_solver(t0,tf,A,tol,h0,method,k):
-    #Y = np.zeros((A.shape))
     U, S, V = construct_U_S_V_0_k(k,A) # construct initial conditions
     
     Y0 = U@S@V.T
@@ -67,7 +61,6 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
         t_new,h_new = step_control(sigma,tol,h,t)
 
         if t_new < t and count <= 3: # reject and try again with new 
-            #K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h_new,t_new,U,V,S)
             t = t_new
             h = h_new
             count += 1
@@ -77,9 +70,6 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
             h = h_new
             j += 1
             count = 0
-            # computing norms
-            #Y_temp = U1@S1@V1.T
-            #Y = np.hstack((Y,Y_temp))
             U_tensor = np.hstack((U_tensor,U))
             S_tensor = np.hstack((S_tensor,S))
             V_tensor = np.hstack((V_tensor,V))
@@ -97,7 +87,6 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
         j += 1
         t_vals[-1] = tf
 
-    #return Y,U_tensor,S_tensor,V_tensor,t_vals
     return U_tensor,S_tensor,V_tensor,t_vals
 
 
