@@ -161,7 +161,7 @@ def compute_nomrs(t_vals,Xt,Yt,A,Yt_dot,A_dot,Wt):
 
     return Xt_AT_array,Yt_AT_array,Xt_YT_array,Yt_AT_dot_array,Wt_AT_array
 
-def plot_norms(t_vals,norm_array1,norm_array2,epsi):
+def plot_norms(t_vals1,t_vals2,norm_array1,norm_array2,epsi):
     name = ['Xt_AT','Yt_AT','Xt_YT','Yt_AT_dot','Wt_AT']
     plt.figure(figsize=(12,5))
     plt.suptitle('Norms of the residuals for the rank 10 and 20 solutions, epsilon = '+str(epsi))
@@ -169,12 +169,12 @@ def plot_norms(t_vals,norm_array1,norm_array2,epsi):
         
         plt.subplot(1,2,1)
         plt.title('rank 10 solutions')
-        plt.plot(t_vals,norm[0],label=name)
+        plt.plot(t_vals1,norm[0],label=name)
         plt.legend()
         plt.grid()
         plt.subplot(1,2,2)
         plt.title('rank 20 solutions')
-        plt.plot(t_vals,norm[1],label=name)
+        plt.plot(t_vals2,norm[1],label=name)
         plt.legend()
         plt.grid()
 

@@ -34,8 +34,6 @@ def construct_U_S_V_0_k(k,A):
 def variable_solver(t0,tf,A,tol,h0,method,k):
     U, S, V = construct_U_S_V_0_k(k,A) # construct initial conditions
     
-    Y0 = U@S@V.T
-    Y = Y0
     U_tensor = U
     S_tensor = S
     V_tensor = V
