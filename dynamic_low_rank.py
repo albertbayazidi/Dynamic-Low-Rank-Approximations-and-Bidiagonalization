@@ -35,12 +35,12 @@ def second_order_method(h,t,U,V,S):
     FU05 = FU(U05,A_dot05,V05,S05) 
     #K2_U = h*(FU05@U05.T-U05@FU05.T)
     K2_U = [h*FU05,h*U05]
-    U1 = cay.cay_factorized(K2_U)@U # droped 0.5
+    U1 = cay.cay_factorized(K2_U)@U 
 
     FV05 = FV(V05,A_dot05,U05,S05)
     #K2_V = h*(FV05@V05.T-V05@FV05.T)
     K2_V = [h*FV05,h*V05]
-    V1 = cay.cay_factorized(K2_V)@V # droped 0.5
+    V1 = cay.cay_factorized(K2_V)@V 
 
     return K1_U,K1_V,S05,K1_S,U1,S1,V1
     
@@ -60,7 +60,7 @@ def second_order_method2(h,t,U,V,S):
     K1_V = [h*0.5*FVj,h*0.5*V]
     V05 = cay.cay_factorized(K1_V)@V # droped 0.5
 
-    A_dot05 = ex.A_dot(t+h/2)
+    A_dot05 = ex.A_2_dot(t+h/2)
     K2_S = h*U05.T@A_dot05@V05
     S1 = S + K2_S
 
