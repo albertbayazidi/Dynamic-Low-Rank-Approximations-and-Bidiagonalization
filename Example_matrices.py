@@ -36,8 +36,8 @@ def A(t):
     T1 = np.diag(-np.ones(99), k=1) + np.diag(np.ones(99), k=-1)
     T2 = np.diag(-np.ones(99)/2, k=1) + np.diag(-np.ones(98), k=2) + np.diag(np.ones(99)/2, k=-1) + np.diag(np.ones(98), k=-2)
     
-    Q1 = lambda t :  Id * expm(t *T1)
-    Q2 = lambda t :  Id * expm(t *T2)
+    Q1 = lambda t :  Id @ expm(t *T1)
+    Q2 = lambda t :  Id @ expm(t *T2)
     
     return Q1(t) @ (A1 + np.exp(t) * A2) @ Q2(t).T
 
@@ -56,8 +56,8 @@ def A_dot(t):
     T1 = np.diag(-np.ones(99), k=1) + np.diag(np.ones(99), k=-1)
     T2 = np.diag(-np.ones(99)/2, k=1) + np.diag(-np.ones(98), k=2) + np.diag(np.ones(99)/2, k=-1) + np.diag(np.ones(98), k=-2)
     
-    Q1 = lambda t :  Id * expm(t *T1)
-    Q2 = lambda t :  Id * expm(t *T2)
+    Q1 = lambda t :  Id @ expm(t *T1)
+    Q2 = lambda t :  Id @ expm(t *T2)
     
     # using chain rule
     return T1 @ Q1(t)@ (A1 + np.exp(t)*A2) @ Q2(t).T + Q1(t) @ ( A1 + np.exp(t) * A2) @ (T2@Q2(t)).T + np.exp(t) * Q1(t) @ A2 @ Q2(t).T
@@ -77,8 +77,8 @@ def A_2(t):
     T1 = np.diag(-np.ones(99), k=1) + np.diag(np.ones(99), k=-1)
     T2 = np.diag(-np.ones(99)/2, k=1) + np.diag(-np.ones(98), k=2) + np.diag(np.ones(99)/2, k=-1) + np.diag(np.ones(98), k=-2)
     
-    Q1 = lambda t :  Id * expm(t *T1)
-    Q2 = lambda t :  Id * expm(t *T2)
+    Q1 = lambda t :  Id @ expm(t *T1)
+    Q2 = lambda t :  Id @ expm(t *T2)
     
     return Q1(t) @ (A1 + np.cos(t) * A2) @ Q2(t).T
 
@@ -98,8 +98,8 @@ def A_2_dot(t):
     T1 = np.diag(-np.ones(99), k=1) + np.diag(np.ones(99), k=-1)
     T2 = np.diag(-np.ones(99)/2, k=1) + np.diag(-np.ones(98), k=2) + np.diag(np.ones(99)/2, k=-1) + np.diag(np.ones(98), k=-2)
     
-    Q1 = lambda t :  Id * expm(t *T1)
-    Q2 = lambda t :  Id * expm(t *T2)
+    Q1 = lambda t :  Id @ expm(t *T1)
+    Q2 = lambda t :  Id @ expm(t *T2)
     
     # using chain rule
     return  T1 @ Q1(t)@ (A1 + np.cos(t)*A2) @ Q2(t).T + Q1(t) @ ( A1 + np.cos(t) * A2) @ (T2@Q2(t)).T - np.sin(t) * Q1(t) @ A2 @ Q2(t).T
@@ -124,8 +124,8 @@ def A_3(t):
     T1 = np.diag(-np.ones(99), k=1) + np.diag(np.ones(99), k=-1)
     T2 = np.diag(-np.ones(99)/2, k=1) + np.diag(-np.ones(98), k=2) + np.diag(np.ones(99)/2, k=-1) + np.diag(np.ones(98), k=-2)
     
-    Q1 = lambda t :  Id * expm(t *T1)
-    Q2 = lambda t :  Id * expm(t *T2)
+    Q1 = lambda t :  Id @ expm(t *T1)
+    Q2 = lambda t :  Id @ expm(t *T2)
     
     return Q1(t) @ (A1_ep_103 + np.exp(t) * A2_ep_103) @ Q2(t).T
 
@@ -145,8 +145,8 @@ def A_3_dot(t):
     T1 = np.diag(-np.ones(99), k=1) + np.diag(np.ones(99), k=-1)
     T2 = np.diag(-np.ones(99)/2, k=1) + np.diag(-np.ones(98), k=2) + np.diag(np.ones(99)/2, k=-1) + np.diag(np.ones(98), k=-2)
     
-    Q1 = lambda t :  Id * expm(t *T1)
-    Q2 = lambda t :  Id * expm(t *T2)
+    Q1 = lambda t :  Id @ expm(t *T1)
+    Q2 = lambda t :  Id @ expm(t *T2)
     
     # using chain rule
     return (T1 @ Q1(t) @ A1_ep_103 + np.exp(t)*(Id + T1)@ Q1(t) @ A2_ep_103) @ Q2(t).T + (Q1(t) @ A1_ep_103 + np.exp(t) * Q1(t) @ A2_ep_103) @ (T2@Q2(t)).T
