@@ -88,7 +88,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
     return U_tensor,S_tensor,V_tensor,t_vals
 
 
-def format_Yt(A,U,S,V):
+def format_Yt(A,U,S,V,t_vals):
     """
     Converts the concatenated Y-matrix from a wide matrix to a 3D array
     """
@@ -108,7 +108,7 @@ def format_Yt(A,U,S,V):
         Yt[i] = Ut[i]@St[i]@Vt[i].T
 
     Yt[-2,:,:] = Yt[-1,:,:]
-    return Yt[:-1],Ut,St,Vt
+    return Yt[:-1],Ut,St,Vt,t_vals[:-1]
 
 
 # can be removed later
