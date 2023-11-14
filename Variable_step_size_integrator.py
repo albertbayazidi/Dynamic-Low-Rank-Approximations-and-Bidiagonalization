@@ -111,21 +111,6 @@ def format_Yt(A,U,S,V,t_vals):
     return Yt[:-1],Ut,St,Vt,t_vals[:-1]
 
 
-# can be removed later
-def format_result(A,Y):
-    """
-    Converts the concatenated Y-matrix from a wide matrix to a 3D array
-    """
-    m,n = A.shape
-    len_t = int(Y.shape[1]/n)
-    Yt = np.zeros((len_t,m,n))
-
-    for i in range(len_t):
-        Yt[i,:,:] = Y[:,i*m:(i+1)*m]
-
-    return Yt
-
-
 def extract_singular_values(S_matrix):
     len_t,k = np.shape(S_matrix)[:2]
     S = np.zeros((len_t,k))

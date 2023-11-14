@@ -5,6 +5,7 @@ import time_integration_low_rank as tilr
 import matplotlib.pyplot as plt
 import Example_matrices as ex
 import lanczos_bidiag as lb
+import cay_operator as cay
 
 def g(x,y):
     return np.sin(np.pi*x)*np.sin(2*np.pi*y)
