@@ -66,7 +66,7 @@ def compute_SVD_t(A,k,t_vals):
         X_temp = U@S@VT
         X = np.hstack((X,X_temp))
     
-    Xt = vssi.format_result(A(0),X)
+    Xt = vssi.format_SVD(A(0),X)
 
     return Xt
 

@@ -111,6 +111,21 @@ def format_Yt(A,U,S,V,t_vals):
     return Yt[:-1],Ut,St,Vt,t_vals[:-1]
 
 
+# can be removed later
+def format_SVD(A,X):
+    """
+    Converts the concatenated X-matrix from a wide matrix to a 3D array
+    """
+    m,n = A.shape
+    len_t = int(X.shape[1]/n)
+    Xt = np.zeros((len_t,m,n))
+
+    for i in range(len_t):
+        Xt[i,:,:] = X[:,i*m:(i+1)*m]
+
+    return Xt
+
+
 def extract_singular_values(S_matrix):
     len_t,k = np.shape(S_matrix)[:2]
     S = np.zeros((len_t,k))
