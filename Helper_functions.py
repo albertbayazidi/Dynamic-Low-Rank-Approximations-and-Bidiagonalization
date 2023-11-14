@@ -179,3 +179,28 @@ def plot_norms(t_vals1,t_vals2,norm_array1,norm_array2,epsi):
         plt.grid()
 
     plt.show()
+
+
+def plot_singular_values(k):
+    t0 = 0
+    h = 0.01
+    tol = 1.e-3
+    tf = 10
+
+    A_20 = ex.A_2(t0)
+
+    method = dlr.second_order_method2
+    U_tensor,S_tensor,V_tensor,t_vals = vssi.variable_solver(t0,tf,A_20,tol,h,method,k)
+
+    Yt,Ut,St,Vt = vssi.format_Yt(A_20,U_tensor,S_tensor,V_tensor)
+
+    sing_vals_exact = vssi.compute_singular_values(ex.A_2,k,t_vals)
+    sing_vals_approx = vssi.extract_singular_values(St)
+
+    plt.figure(1,figsize=(10,5))
+    plt.title(f"Singular values as function of time, k = {k}")
+    for i in range(len(sing_vals_exact)): 
+        plt.plot(t_vals,sing_vals_exact[i])
+        plt.plot(t_vals[::20],(sing_vals_approx[i][:-1])[::20], "o", markersize = 2.5)
+    plt.xlabel("time")
+    plt.show()
