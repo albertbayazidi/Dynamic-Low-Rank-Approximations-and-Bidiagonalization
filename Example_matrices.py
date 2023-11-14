@@ -107,6 +107,7 @@ def A_2_dot(t):
 
 np.random.seed(1)
 A1_ep_103 = generateA(10**-3)
+np.random.seed(2)
 A2_ep_103 = generateA(10**-3)
 
 def A_3(t):

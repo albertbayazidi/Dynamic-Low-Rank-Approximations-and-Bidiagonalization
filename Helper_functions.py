@@ -84,6 +84,20 @@ def construct_Y_dot(U,S,V,tvals):
 
     return Yt_dot
 
+def construct_Y_dot_3(U,S,V,tvals):
+    n = U[0,:,:].shape[0]
+    Yt_dot = np.zeros((len(tvals),n,n))
+    I = np.eye(n,n)
+    for i,t in enumerate(tvals):
+        A_dot = ex.A_3_dot(t)
+        S_dot = U[i].T@A_dot@V[i]
+        U_dot = (I-U[i]@U[i].T) @ A_dot @ V[i] @ np.linalg.inv(S[i])
+        V_dot = (I-V[i]@V[i].T) @ A_dot @ U[i] @ np.linalg.inv(S[i].T)
+        Yt_dot[i] = U_dot@S[i]@V[i].T + U[i]@S_dot@V[i].T + U[i]@S[i]@V_dot.T
+
+    return Yt_dot
+
+
 # computes the rank k SVD for A using the lanczos bidiagonalization method
 def construct_Wt(A,k,tvals):
     """
@@ -141,6 +155,44 @@ def solve_task4(k,A,h0,tf,tol):
     Wt = construct_Wt(A,k,t_vals)
     
     return Yt,Xt,Yt_dot,Wt,t_vals
+
+def solve_task4_3(k,A,h0,tf,tol):
+    """
+    wrapper function that computes 
+    1 - the approx soln using the variable step size integrator
+    2 - the truncated SVD soln
+    3 - the Yt_dot
+    4 - the lancoz bidiagonal soln
+
+    input:
+    k - rank, should also be number of largest singular values
+    A - functoin cunstructing matrix of dimension n x n 
+    h0 - initial step size
+    tf - final time
+    tol - tolerance for the variable step size integrator
+    output:
+    The different solutions
+    """
+
+    # A should be a function
+    t0 = 0
+    A0 = A(0)
+    method = dlr.second_order_method
+    U,S,V,t_vals = vssi.variable_solver(t0,tf,A0,tol,h0,method,k)
+
+    #compute approx soln
+    Yt,Ut,St,Vt,t_vals = vssi.format_Yt(A0,U,S,V,t_vals)
+    #compute truncated SVD soln
+    Xt = compute_SVD_t(A,k,t_vals) 
+
+    #compute y_dot for approx soln
+    Yt_dot = construct_Y_dot_3(Ut,St,Vt,t_vals)
+
+    #compute bidiagonal soln
+    Wt = construct_Wt(A,k,t_vals)
+    
+    return Yt,Xt,Yt_dot,Wt,t_vals
+
 
 def compute_nomrs(t_vals,Xt,Yt,A,Yt_dot,A_dot,Wt):
     """
