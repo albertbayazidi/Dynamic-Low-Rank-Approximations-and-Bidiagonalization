@@ -293,6 +293,6 @@ def plot_singular_values(k):
     plt.title(f"Singular values as function of time, k = {k}")
     for i in range(len(sing_vals_exact)): 
         plt.plot(t_vals,sing_vals_exact[i])
-        plt.plot(t_vals[::10],(sing_vals_approx[i][::10]), "o", markersize = 2.5)
+        plt.plot(t_vals[::20],(sing_vals_approx[i][::20]), "o", markersize = 2.5)
     plt.xlabel("time")
     plt.show()
