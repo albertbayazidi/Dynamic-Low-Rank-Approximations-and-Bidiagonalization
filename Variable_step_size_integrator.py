@@ -44,10 +44,6 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
 
     t_vals = [0]
     while t < tf:
-        q = np.linalg.norm # can be moved later
-        r = np.round # can be removed later
-        #print('count',count,'j',j,'t',t,'h',h,'u',r(q(U),3),'v',r(q(V),3),'s',r(q(S),3), '\n')
-
         K1_U,K1_V,S05,K1_S,U1,S1,V1 = method(h,t,U,V,S)
 
         S1_est = S05 + 0.5*K1_S
@@ -98,15 +94,20 @@ def format_Yt(A,U,S,V,t_vals):
     Vt = np.zeros((len_t,n,k)) # Not transposed here
     Yt = np.zeros((len_t,m,n))
 
+    #sliceing up the matrices
     for i in range(len_t):
         Ut[i,:,:] = U[:,i*k:(i+1)*k]
         St[i,:,:] = S[:,i*k:(i+1)*k]
         Vt[i,:,:] = V[:,i*k:(i+1)*k]
-
         Yt[i] = Ut[i]@St[i]@Vt[i].T
 
+    #recomputing last step
+    Ut[-2,:,:] = Ut[-1,:,:]
+    St[-2,:,:] = St[-1,:,:]
+    Vt[-2,:,:] = Vt[-1,:,:] 
     Yt[-2,:,:] = Yt[-1,:,:]
-    return Yt[:-1],Ut,St,Vt,t_vals[:-1]
+
+    return Yt[:-1],Ut[:-1],St[:-1],Vt[:-1],t_vals
 
 
 # can be removed later

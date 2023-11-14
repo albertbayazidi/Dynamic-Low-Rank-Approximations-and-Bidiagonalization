@@ -28,7 +28,7 @@ def u_exact_t(N,t_vals):
 def compute_error_norm(t_vals,Yt,u_ex_t):
     error = np.zeros(len(t_vals)-1)
     for i in range(len(t_vals)-1):
-        error[i] = np.linalg.norm(Yt[i]-u_ex_t[i])
+        error[i] = np.linalg.norm(Yt[i]-u_ex_t[i],ord='fro')
     return error
 
 
@@ -215,11 +215,11 @@ def compute_nomrs(t_vals,Xt,Yt,A,Yt_dot,A_dot,Wt):
     Yt_AT_dot_array = np.zeros(len(t_vals))
     Wt_AT_array = np.zeros(len(t_vals))
     for i,t in enumerate(t_vals):
-        Xt_AT_array[i] = np.linalg.norm(Xt[i,:,:]-A(t))
-        Yt_AT_array[i] = np.linalg.norm(Yt[i,:,:]-A(t))
-        Xt_YT_array[i] = np.linalg.norm(Xt[i,:,:]-Yt[i,:,:])
-        Yt_AT_dot_array[i] = np.linalg.norm(Yt_dot[i,:,:]-A_dot(t))
-        Wt_AT_array[i] = np.linalg.norm(Wt[i,:,:]-A(t))
+        Xt_AT_array[i] = np.linalg.norm(Xt[i,:,:]-A(t),ord='fro')
+        Yt_AT_array[i] = np.linalg.norm(Yt[i,:,:]-A(t),ord='fro')
+        Xt_YT_array[i] = np.linalg.norm(Xt[i,:,:]-Yt[i,:,:],ord='fro')
+        Yt_AT_dot_array[i] = np.linalg.norm(Yt_dot[i,:,:]-A_dot(t),ord='fro')
+        Wt_AT_array[i] = np.linalg.norm(Wt[i,:,:]-A(t),ord='fro')
 
     return Xt_AT_array,Yt_AT_array,Xt_YT_array,Yt_AT_dot_array,Wt_AT_array
 
@@ -276,8 +276,8 @@ def plot_heat_diff_ranks(Ytk1,Yt):
 
 def plot_singular_values(k):
     t0 = 0
-    h = 0.01
-    tol = 1.e-3
+    h = 0.2 
+    tol = 1.e-3 
     tf = 10
 
     A_20 = ex.A_2(t0)
@@ -285,8 +285,7 @@ def plot_singular_values(k):
     method = dlr.second_order_method2
     U_tensor,S_tensor,V_tensor,t_vals = vssi.variable_solver(t0,tf,A_20,tol,h,method,k)
 
-    Yt,Ut,St,Vt = vssi.format_Yt(A_20,U_tensor,S_tensor,V_tensor)
-
+    _,_,St,_,t_vals = vssi.format_Yt(A_20,U_tensor,S_tensor,V_tensor,t_vals)
     sing_vals_exact = vssi.compute_singular_values(ex.A_2,k,t_vals)
     sing_vals_approx = vssi.extract_singular_values(St)
 
@@ -294,6 +293,6 @@ def plot_singular_values(k):
     plt.title(f"Singular values as function of time, k = {k}")
     for i in range(len(sing_vals_exact)): 
         plt.plot(t_vals,sing_vals_exact[i])
-        plt.plot(t_vals[::20],(sing_vals_approx[i][:-1])[::20], "o", markersize = 2.5)
+        plt.plot(t_vals[::10],(sing_vals_approx[i][::10]), "o", markersize = 2.5)
     plt.xlabel("time")
     plt.show()
