@@ -71,9 +71,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
             U_tensor = np.hstack((U_tensor,U))
             S_tensor = np.hstack((S_tensor,S))
             V_tensor = np.hstack((V_tensor,V))
-            ## for testing 
             t_vals.append(t)
-            ##
 
     if t > tf: # recomputing last step
         t = t-h_old
