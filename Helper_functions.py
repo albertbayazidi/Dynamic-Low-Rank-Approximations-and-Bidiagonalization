@@ -5,6 +5,7 @@ import time_integration_low_rank as tilr
 import matplotlib.pyplot as plt
 import Example_matrices as ex
 import lanczos_bidiag as lb
+import cay_operator as cay
 
 def g(x,y):
     return np.sin(np.pi*x)*np.sin(2*np.pi*y)
@@ -44,39 +45,10 @@ def solve_heat_eq(k,h0,tf,tol):
     # do method
     U,S,V,t_vals = vssi.variable_solver(t0,tf,u0,tol,h0,method,k)
 
-    Yt,Ut,St,Vt = vssi.format_Yt(u0,U,S,V)
+    Yt,Ut,St,Vt,t_vals = vssi.format_Yt(u0,U,S,V,t_vals)
     u_ex_t = u_exact_t(N,t_vals)
     error = compute_error_norm(t_vals,Yt,u_ex_t)
     return Yt,Ut,Vt,u_ex_t,error,t_vals
-
-def plot_heat_sol_and_error(k,Yt,u_ex_t,error):
-    # comparing the solution to the exact solution
-    plt.figure(figsize=(15,5))
-    plt.suptitle(f'Solution of heat eq and error for rank {k} ')
-    plt.subplot(1,3,1)
-    plt.title('nummerical solution')
-    plt.imshow(Yt[-1])
-    plt.subplot(1,3,2)
-    plt.title('exact solution')
-    plt.imshow(u_ex_t[-1])
-    plt.subplot(1,3,3)
-    plt.title('Error')
-    plt.xlabel('iteration')
-    plt.plot(error[:-1])
-    plt.show()
-
-
-def plot_heat_diff_ranks(Ytk1,Yt):
-    # comparing the solution to the exact solution
-    plt.figure(figsize=(15,5))
-    plt.suptitle(f'Solution of heat eq and error for different ranks')
-    plt.subplot(1,2,1)
-    plt.title('Rank 1 solution')
-    plt.imshow(Ytk1[-1])
-    plt.subplot(1,2,2)
-    plt.title('Higher rank solution')
-    plt.imshow(Yt[-1])
-    plt.show()
 
 # computes truncated SVD oF A for all t in t_vals
 def compute_SVD_t(A,k,t_vals):
@@ -114,6 +86,16 @@ def construct_Y_dot(U,S,V,tvals):
 
 # computes the rank k SVD for A using the lanczos bidiagonalization method
 def construct_Wt(A,k,tvals):
+    """
+    Performs Lanczos bidiagonalization algorithm
+    input:
+    A - functoin cunstructing matrix of dimension n x n 
+    k - rank, should also be number of largest singular values
+    tvals - time inteval to compute the solution
+
+    output:
+    Wt - rank k SVD of A(t) for all t in tvals
+    """
     # A should be a function
     n = A(0).shape[0]
     Wt = np.zeros((len(tvals),n,n))
@@ -124,6 +106,23 @@ def construct_Wt(A,k,tvals):
     return Wt
 
 def solve_task4(k,A,h0,tf,tol):
+    """
+    wrapper function that computes 
+    1 - the approx soln using the variable step size integrator
+    2 - the truncated SVD soln
+    3 - the Yt_dot
+    4 - the lancoz bidiagonal soln
+
+    input:
+    k - rank, should also be number of largest singular values
+    A - functoin cunstructing matrix of dimension n x n 
+    h0 - initial step size
+    tf - final time
+    tol - tolerance for the variable step size integrator
+    output:
+    The different solutions
+    """
+
     # A should be a function
     t0 = 0
     A0 = A(0)
@@ -131,8 +130,7 @@ def solve_task4(k,A,h0,tf,tol):
     U,S,V,t_vals = vssi.variable_solver(t0,tf,A0,tol,h0,method,k)
 
     #compute approx soln
-    Yt,Ut,St,Vt = vssi.format_Yt(A0,U,S,V)
-
+    Yt,Ut,St,Vt,t_vals = vssi.format_Yt(A0,U,S,V,t_vals)
     #compute truncated SVD soln
     Xt = compute_SVD_t(A,k,t_vals) 
 
@@ -145,13 +143,25 @@ def solve_task4(k,A,h0,tf,tol):
     return Yt,Xt,Yt_dot,Wt,t_vals
 
 def compute_nomrs(t_vals,Xt,Yt,A,Yt_dot,A_dot,Wt):
-    # A should be a function
+    """
+    function wrapper for computing the norms of the residuals
+    input:
+    t_vals - time values
+    Yt - approx soln
+    Xt - truncated SVD soln
+    A - functoin cunstructing matrix of dimension n x n
+    Yt_dot - derivative of approx soln
+    A_dot - derivative of A
+    Wt - bidiagonal soln
+
+    output:
+    The different norms
+    """
     Xt_AT_array = np.zeros(len(t_vals))
     Yt_AT_array = np.zeros(len(t_vals))
     Xt_YT_array = np.zeros(len(t_vals))
     Yt_AT_dot_array = np.zeros(len(t_vals))
     Wt_AT_array = np.zeros(len(t_vals))
-    
     for i,t in enumerate(t_vals):
         Xt_AT_array[i] = np.linalg.norm(Xt[i,:,:]-A(t))
         Yt_AT_array[i] = np.linalg.norm(Yt[i,:,:]-A(t))
@@ -161,25 +171,56 @@ def compute_nomrs(t_vals,Xt,Yt,A,Yt_dot,A_dot,Wt):
 
     return Xt_AT_array,Yt_AT_array,Xt_YT_array,Yt_AT_dot_array,Wt_AT_array
 
+# plott functions
 def plot_norms(t_vals1,t_vals2,norm_array1,norm_array2,epsi):
-    name = ['Xt_AT','Yt_AT','Xt_YT','Yt_AT_dot','Wt_AT']
-    plt.figure(figsize=(12,5))
+    name = ['||Xt-AT||','||Yt-AT||','||Xt-YT||','||Yt_dot-AT_dot||','||Wt-AT||']
+    plt.figure(figsize=(20,6))
     plt.suptitle('Norms of the residuals for the rank 10 and 20 solutions, epsilon = '+str(epsi))
     for norm,name in zip(zip(norm_array1,norm_array2),name):
         
         plt.subplot(1,2,1)
         plt.title('rank 10 solutions')
         plt.plot(t_vals1,norm[0],label=name)
-        plt.legend()
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+          fancybox=True, shadow=True, ncol=5)
         plt.grid()
         plt.subplot(1,2,2)
         plt.title('rank 20 solutions')
         plt.plot(t_vals2,norm[1],label=name)
-        plt.legend()
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+          fancybox=True, shadow=True, ncol=5)
         plt.grid()
 
     plt.show()
 
+def plot_heat_sol_and_error(k,Yt,u_ex_t,error):
+    # comparing the solution to the exact solution
+    plt.figure(figsize=(15,5))
+    plt.suptitle(f'Solution of heat eq and error for rank {k} ')
+    plt.subplot(1,3,1)
+    plt.title('nummerical solution')
+    plt.imshow(Yt[-1])
+    plt.subplot(1,3,2)
+    plt.title('exact solution')
+    plt.imshow(u_ex_t[-1])
+    plt.subplot(1,3,3)
+    plt.title('Error')
+    plt.xlabel('iteration')
+    plt.plot(error[:-1])
+    plt.show()
+
+
+def plot_heat_diff_ranks(Ytk1,Yt):
+    # comparing the solution to the exact solution
+    plt.figure(figsize=(15,5))
+    plt.suptitle(f'Solution of heat eq and error for different ranks')
+    plt.subplot(1,2,1)
+    plt.title('Rank 1 solution')
+    plt.imshow(Ytk1[-1])
+    plt.subplot(1,2,2)
+    plt.title('Higher rank solution')
+    plt.imshow(Yt[-1])
+    plt.show()
 
 def plot_singular_values(k):
     t0 = 0

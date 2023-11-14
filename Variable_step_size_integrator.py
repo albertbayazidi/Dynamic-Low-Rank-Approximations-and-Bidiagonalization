@@ -88,7 +88,7 @@ def variable_solver(t0,tf,A,tol,h0,method,k):
     return U_tensor,S_tensor,V_tensor,t_vals
 
 
-def format_Yt(A,U,S,V):
+def format_Yt(A,U,S,V,t_vals):
     """
     Converts the concatenated Y-matrix from a wide matrix to a 3D array
     """
@@ -108,22 +108,7 @@ def format_Yt(A,U,S,V):
         Yt[i] = Ut[i]@St[i]@Vt[i].T
 
     Yt[-2,:,:] = Yt[-1,:,:]
-    return Yt[:-1],Ut,St,Vt
-
-
-# can be removed later
-def format_result(A,Y):
-    """
-    Converts the concatenated Y-matrix from a wide matrix to a 3D array
-    """
-    m,n = A.shape
-    len_t = int(Y.shape[1]/n)
-    Yt = np.zeros((len_t,m,n))
-
-    for i in range(len_t):
-        Yt[i,:,:] = Y[:,i*m:(i+1)*m]
-
-    return Yt
+    return Yt[:-1],Ut,St,Vt,t_vals[:-1]
 
 
 def extract_singular_values(S_matrix):
