@@ -16,4 +16,4 @@ We further evaluate the DLR method on different Ordinary Differential Equations 
 
 The main results can be found in the file main.py. Here we only show an improvement we implemented to make the DLR method faster.
 
-
+<img src="comp_cost.png">
